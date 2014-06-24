@@ -68,7 +68,7 @@ the machine wouldn't ever allow them in its current form
 
 * State to status mapping, allowing a state machine to be lazily constructed from a legacy FSA.
  
-##Pulleys does not yet implement the following:##   
+##Pulleys does not yet implement the following:##
 
  * Overlapping state machines
 
