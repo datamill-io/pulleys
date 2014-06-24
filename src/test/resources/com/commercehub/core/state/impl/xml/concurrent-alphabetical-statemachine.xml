@@ -1,0 +1,83 @@
+<state-machine name="A" concurrent="false" default-child-ref="B">
+	<property name="swimlanes">
+		<value text="1"/>
+		<value text="2"/>
+	</property>
+	<state name="B">
+		<transition name="1-exclusive-to-concurrent" entry="C">
+			<trigger-ref ref="HubActionTrigger" param="exc-to-conc" />
+			<transition-action-ref ref="TransitionAction" param="B->C"/>
+		</transition>
+		<entry-action-ref ref="EntryAction" param="C" />
+		<exit-action-ref ref="ExitAction" param="C" />
+		<entry-set-property name="swimlanes" value="1"/>
+	</state>
+	<state name="C" concurrent="true">
+		<state name="D" default-child-ref="E">
+			<state name="E">
+				<transition name="2-concurrent-to-exclusive" entry="B">
+					<trigger-ref ref="HubActionTrigger" param="conc-to-exc" />
+					<transition-action-ref ref="TransitionAction" param="C.D.E->B"/>
+				</transition>
+				<transition name="3-internal-to-concurrent" entry="C.G.I">
+					<trigger-ref ref="HubActionTrigger" param="internal" />
+					<transition-action-ref ref="TransitionAction"  param="C.D.E->C.G.I"/>
+				</transition>
+				<entry-action-ref ref="EntryAction" param="E"/>
+				<exit-action-ref ref="ExitAction" param="E"/>
+			</state>
+			<state name="F">
+				<entry-action-ref ref="EntryAction" param="F"/>
+				<exit-action-ref ref="ExitAction" param="F"/>
+			</state>
+			<entry-action-ref ref="EntryAction"  param="D"/>
+			<exit-action-ref ref="ExitAction" param="D"/>
+		</state>
+		<state name="G" default-child-ref="H">
+			<state name="H">
+				<entry-action-ref ref="EntryAction" param="H"/>
+				<exit-action-ref ref="ExitAction" param="H"/>
+			</state>
+			<state name="I">
+				<entry-action-ref ref="EntryAction" param="I"/>
+				<exit-action-ref ref="ExitAction" param="I"/>
+			</state>
+			<entry-action-ref ref="EntryAction" param="G"/>
+			<exit-action-ref ref="ExitAction" param="G"/>
+		</state>
+		<transition name="4-concurrent-to-concurrent" entry="J">
+			<trigger-ref ref="HubActionTrigger" param="conc-to-conc" />
+			<transition-action-ref ref="TransitionAction" param="C->J"/>
+		</transition>
+		<entry-action-ref ref="EntryAction" param="C"/>
+		<exit-action-ref ref="ExitAction" param="C"/>
+		<entry-set-property name="swimlanes" value="2"/>
+	</state>
+	<state name="J" concurrent="true">
+		<state name="K">
+			<entry-action-ref ref="EntryAction" param="K"/>
+			<exit-action-ref ref="ExitAction" param="K"/>
+		</state>
+		<state name="L" default-child-ref="M">
+			<state name="M">
+				<entry-action-ref ref="EntryAction" param="M"/>
+				<exit-action-ref ref="ExitAction" param="M"/>
+				<transition name="hi" entry="J.L.N">
+					<trigger-ref ref="HubActionTrigger" param="chicken"/>
+				</transition>
+			</state>
+			<state name="N">
+				<entry-action-ref ref="EntryAction" param="N"/>
+				<exit-action-ref ref="ExitAction" param="N"/>
+			</state>
+			<entry-action-ref ref="EntryAction" param="L"/>
+			<exit-action-ref ref="ExitAction" param="L"/>
+		</state>
+		<entry-action-ref ref="EntryAction" param="J"/>
+		<exit-action-ref ref="ExitAction" param="J"/>
+		<entry-set-property name="swimlanes" value="2"/>
+		<transition name="hey" entry="J.L.N">
+			<trigger-ref ref="HubActionTrigger" param="{a,b,c}"/>
+		</transition>
+	</state>
+</state-machine>
