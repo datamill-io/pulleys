@@ -4,6 +4,8 @@
  */
 package com.commercehub.core.state;
 
+import com.commercehub.core.state.annotations.RefName;
+
 import java.util.Set;
 
 /**

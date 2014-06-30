@@ -4,6 +4,8 @@
  */
 package com.commercehub.core.state;
 
+import com.commercehub.core.state.annotations.RefName;
+
 import java.util.Set;
 
 /**
@@ -12,6 +14,7 @@ import java.util.Set;
  *
  * @author mmiller
  */
+@RefName("conditional")
 public class SimpleConditionalTrigger extends ConditionalTrigger {
     /** DOCUMENT ME! */
     Set observables;

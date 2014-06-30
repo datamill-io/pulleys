@@ -12,8 +12,4 @@
     			
     <action-defn name="TransitionAction"
     			class="com.commercehub.core.state.TransitionAction" />
-
-    <!-- Statefuls -->
-    <stateful-defn name="Alphabetical"
-                   class="com.commercehub.core.state.Alphabetical" />
 </state-machine-client-impl>

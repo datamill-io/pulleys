@@ -1,6 +1,8 @@
 
 package com.commercehub.core.state;
 
+import com.commercehub.core.state.annotations.RefName;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -11,6 +13,7 @@ import java.util.Set;
  *
  * @author mmiller
  */
+@RefName("creation")
 public class CreationTrigger extends ConditionalTrigger {
     Set singleStateful;
 

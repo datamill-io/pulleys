@@ -1,0 +1,226 @@
+<?xml encoding="UTF-8" ?>
+<!-- Created by Orr Bernstein -->
+
+<!-- Names may not contain whitespace or the following set of character '.,[]'. -->
+
+<!-- Root element for state machine definitions. 
+     
+     One state machine should be defined for each stateful payload type in each 
+     business process.
+     
+     The name of the state machine is the name of the root state.  It is not
+     permitted for multiple state machines to share the same name for the same
+     stateful payload type in the same profile.
+     
+     Transitions, naturally, cause new states to become active, which in 
+     turn expose new transitions.
+-->
+<!ELEMENT state-machine    ((state | trigger-map)*)>
+<!ATTLIST state-machine    name              CDATA                      #REQUIRED
+                           concurrent        (true | false)             "true"
+                           description       CDATA                      #IMPLIED
+                           default-child-ref CDATA                      #IMPLIED>
+
+<!-- A state may have any number of child states. 
+
+     A state may have any number of transitions to other states or to itself.
+
+     A state may be "concurrent":  
+        When a concurrent state is active, all of its immediate child states are 
+        active.  
+        Concurrent states are useful for implementing submachines.  
+        Any transition to or from any of the descendents of a concurrent state 
+        must be from or to a descendent of that state; i.e., it is not permitted 
+        to transition into or out of a submachine.
+
+    A state may have a default immediate child state, denoted by the
+    default-child-ref attribute:  
+        If the state has no history (i.e. the value of the history attribute is 
+        'none' or the state has never before been active), then the default 
+        child will become active when the state becomes active.  
+        It is permitted for a state to have no active child.
+        Note that the notion of default child is irrelevant for concurrent
+        states; all of their immediate children are activated when the state 
+        becomes active.
+
+    A state may keep history:  
+        If the value of the history attribute is 'self', when the state is 
+        deactivated it will remember which of its immediate child states (if 
+        any) was active; that child will be reactivated if necessary when the 
+        state next becomes active.  
+        If the value of the history attribute is 'deep', this behavior extends 
+        throughout all descendents of the state.  
+        Note that self-history is irrelevant for concurrent states; all of their 
+        immediate children are activated when the state becomes active.
+        If the value of the history attribute is 'none', it has no knowledge of 
+        anything that occurred in the past.  When the state is activated, its
+        default child (if any) will be activated.
+
+    No states may have the same parent and the same name.  States with different
+        parents may have the same name.
+-->
+<!ELEMENT state ((state | transition | entry-action-ref | exit-action-ref)*)>
+<!ATTLIST state name              CDATA                #REQUIRED
+                concurrent        (true | false)       "false"
+                default-child-ref CDATA                #IMPLIED
+                history           (none | self | deep) "none">
+
+<!-- Transitions control the activation of other states.  They are the result of
+     triggers and represented as child elements of states.  
+     
+     If the exit state (the transition element's parent state) is exclusive to 
+     the entry state, it will be deactivated.  If the exit state is concurrent 
+     with the entry state, both entry and exit will be active after the transition.
+     
+     A transition from a state to itself or a state to one of its ancestors 
+     should not alter activeness and is essentially a non-operation.
+
+     Transitions must be named so that triggers may be mapped to them by
+     trigger-map elements.
+
+     The 'entry' attribute of a transition element identifies the state that will
+     be activated when the transition is executed.  The value of this attribute
+     must be a complete, fully-qualified, dotted-notation path name of the
+     entry state.
+
+     Transitions may have trigger-ref children.  These cause the transition to
+     execute when the referenced trigger is pulled, if it qualifies according to
+     the parameter of the mapping.
+        trigger-ref children may be used regardless of whether a trigger-map
+        is also used to map triggers to this transition.
+        When triggers are mapped to transitions with trigger-ref elements, there
+        is no guarantee of ordering of transitions when a single trigger
+        causes multiple transitions to execute.  Trigger-mapped transitions will 
+        always execute before trigger-reffed ones.
+
+     Transitions may have transition-action-ref children.
+        The actions will be executed when the transition occurs, in the order
+        they are listed.
+        Transition actions occur after all necessary deactivations occur and
+        before the necessary activations occur.
+-->
+<!ELEMENT transition        ((trigger-ref | transition-action-ref)*)>
+<!ATTLIST transition        name              ID           #REQUIRED
+                            entry              CDATA        #REQUIRED>
+
+<!-- Trigger-ref elements are children of transition elements; they map a 
+     trigger to their parent transition.  
+     The ref attribute is the name of a trigger defined by a trigger-defn 
+     element.  The trigger-defn may exist in a separate file.
+     The param attribute specifies the parameter value that must be supplied
+     by the application when it pulls the trigger for the trigger to qualify
+     to cause the transition to execute. 
+        The value may be absent or empty.  In either case, a null or empty
+        string value of the runtime argument to eval(...) will qualify the
+        trigger to execute the transition.
+        The value may be "*".  In this case, any parameter value will qualify
+        the trigger to execute the transition.
+        The value may be an explicit string.  In this case, only that explicit
+        parameter value will qualify the trigger to execute the transition.  The
+        test will be case-insensitive.
+-->
+<!ELEMENT trigger-ref       EMPTY>
+<!ATTLIST trigger-ref       ref               CDATA       #REQUIRED
+                            param             CDATA       #IMPLIED>
+
+<!-- An entry-action-ref element maps an action to a state.  The ref attribute 
+     is the name of an action defined by an action-defn element.  The 
+     action-defn may exist in a separate file.
+
+     Entry actions are executed when their parent state becomes active.  In the
+     case of a self-transition, the state's entry actions are executed at the
+     end of the transition, regardless of whether the implementation actually 
+     deactivates the state during the transition.
+
+     Entry actions are executed in the order listed.
+-->
+<!ELEMENT entry-action-ref        EMPTY>
+<!ATTLIST entry-action-ref        ref               CDATA       #REQUIRED
+                                  param             CDATA       #IMPLIED>
+
+<!-- An exit-action-ref element maps an action to a state.  The ref attribute is 
+     the name of an action defined by an action-defn element.  The action-defn 
+     may exist in a separate file.
+
+     Exit actions are executed when their parent state becomes deactivated.  In 
+     the case of a self-transition, the state's exit actions are executed at the
+     start of the transition, regardless of whether the implementation actually 
+     deactivates the state during the transition.
+
+     Exit actions are executed in the order listed.
+-->
+<!ELEMENT exit-action-ref        EMPTY>
+<!ATTLIST exit-action-ref        ref               CDATA       #REQUIRED
+                                 param             CDATA       #IMPLIED>
+
+<!-- A transition-action-ref element maps an action to a transition.  The ref
+     attribute is the name of action defined by an action-defn element.  The
+     action-defn may exist in a separate file.
+
+     Transition actions are executed in the order listed.
+-->
+<!ELEMENT transition-action-ref        EMPTY>
+<!ATTLIST transition-action-ref        ref               CDATA       #REQUIRED
+                                       param             CDATA       #IMPLIED>
+
+<!-- A trigger-map element maps a single trigger to any number of transitions.
+
+     The differences between trigger-map and trigger-ref are:
+        trigger-map elements are children of the top-level state-machine
+        element
+        The transitions listed in a trigger-map are guaranteed to execute in
+        the order listed when the trigger is pulled.
+
+     A trigger-map element has the same attributes as a trigger-ref; see their
+     descriptions there.
+-->
+<!ELEMENT trigger-map           (transition-ref*)>
+<!ATTLIST trigger-map           ref               CDATA       #REQUIRED
+                                param             CDATA       #IMPLIED>
+
+<!-- transition-ref elements are used as children of trigger-map elements; they
+     define the transitions that will execute when the trigger is pulled and
+     qualifies.
+-->
+<!ELEMENT transition-ref        EMPTY>
+<!ATTLIST transition-ref        ref               CDATA       #REQUIRED>
+
+<!-- Root element for an application's trigger and action definitions. -->
+<!ELEMENT state-machine-client-impl ((trigger-defn |
+                                      action-defn | stateful-defn )*)>
+<!ATTLIST state-machine-client-impl     application     CDATA   #IMPLIED
+                                        description     CDATA   #IMPLIED>
+
+<!-- Triggers are Java classes implemented in the state machine's client
+     application.
+     When a trigger is "pulled", its eval(...) method is called with two 
+     parameters:  the stateful object owning the state machine instance, and a 
+     parameter string.  (Note that the type of the parameter argument to
+     eval(...) in the Trigger interface is java.lang.Object.  This is for 
+     future flexibility; the only currently permitted runtime type for 
+     parameters is java.lang.String.)
+     If the trigger's eval(...) method returns true, and the parameter supplied
+     to eval(...) matches that of the trigger mapping, the trigger qualifies any 
+     mapped transitions for execution.
+-->
+<!ELEMENT trigger-defn      EMPTY>
+<!ATTLIST trigger-defn      name              ID          #REQUIRED
+                            class             CDATA       #REQUIRED>
+
+<!-- Actions are Java classes implemented in the state machine's client
+     application.
+     When a state is activated or deactivated, its entry- or exit-actions
+     are executed.  
+     When a transition executes, its actions are executed after the "from"
+     state is completely deactivated and before activation of the "to" state
+     begins.
+-->
+<!ELEMENT action-defn       EMPTY>
+<!ATTLIST action-defn       name              ID          #REQUIRED
+                            class             CDATA       #REQUIRED>
+
+<!-- Actually, defining state machines isn't that important.
+-->
+<!ELEMENT stateful-defn     EMPTY>
+<!ATTLIST stateful-defn     name              ID          #REQUIRED
+                            class             CDATA       #REQUIRED>
