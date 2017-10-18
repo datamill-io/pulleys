@@ -1,0 +1,50 @@
+<state-machine name="A" concurrent="false" default-child-ref="C">
+	<state name="B">
+		<transition name="3-self-transition" entry="B">
+			<trigger-ref ref="HubActionTrigger" param="self" />
+			<transition-action-ref ref="TransitionAction"/>
+		</transition>
+		<entry-action-ref ref="EntryAction"/>
+		<exit-action-ref ref="ExitAction"/>
+	</state>
+	<state name="C" default-child-ref="F">
+		<state name="F">
+			<state name="H">
+			</state>
+			<transition name="1-sibling-transition" entry="C.G">
+				<trigger-ref ref="HubActionTrigger" param="siblings" />
+				<transition-action-ref ref="TransitionAction"/>
+			</transition>
+			<entry-action-ref ref="EntryAction"/>
+			<exit-action-ref ref="ExitAction"/>
+		</state>
+		<state name="G">
+			<transition name="4-descendent-to-ancestor" entry="C">
+				<trigger-ref ref="HubActionTrigger" param="descendent-to-ancestor" />
+				<transition-action-ref ref="TransitionAction"/>
+			</transition>
+
+			<state name="I" />
+			<state name="J">
+				<state name="K">
+					<entry-action-ref ref="EntryAction"/>
+					<exit-action-ref ref="ExitAction"/>				
+				</state>
+				<entry-action-ref ref="EntryAction"/>
+				<exit-action-ref ref="ExitAction"/>
+			</state>
+			<entry-action-ref ref="EntryAction"/>
+			<exit-action-ref ref="ExitAction"/>
+		</state>
+		<transition name="2-transition-between-ancestors" entry="B">
+			<trigger-ref ref="HubActionTrigger" param="ancestors" />
+			<transition-action-ref ref="TransitionAction"/>
+		</transition>
+		<transition name="5-ancestor-to-descendent" entry="C.G.J.K">
+			<trigger-ref ref="HubActionTrigger" param="ancestor-to-descendent" />
+			<transition-action-ref ref="TransitionAction"/>
+		</transition>
+		<entry-action-ref ref="EntryAction"/>
+		<exit-action-ref ref="ExitAction"/>
+	</state>
+</state-machine>

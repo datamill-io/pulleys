@@ -1,0 +1,15 @@
+<state-machine-client-impl>
+    <!-- Triggers -->
+    <trigger-defn name="HubActionTrigger"
+                  class="pulleys.HubActionTrigger" />
+
+    <!-- Actions -->
+    <action-defn name="EntryAction"
+    			class="pulleys.EntryAction" />
+
+    <action-defn name="ExitAction"
+    			class="pulleys.ExitAction" />
+    			
+    <action-defn name="TransitionAction"
+    			class="pulleys.TransitionAction" />
+</state-machine-client-impl>
