@@ -1,6 +1,3 @@
-# THIS PROJECT IS DEPRECATED
-pulleys is no longer maintained, and **this** repository will be removed from GitHub on or after Thursday, January 26, 2017. Published release artifacts will **continue** to be available via Github until that time.
-
 <div align="center">
 <img src="images/logo.png" width="386" height="356"/><br/>
 <img src="images/header.png" width="309" height="107"/>
